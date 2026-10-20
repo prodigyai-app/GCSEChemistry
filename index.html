@@ -1,5 +1,8 @@
 <!doctype html>
+<html lang="en">
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="numeric-tools.js"></script>
 <title>GCSE Chemistry</title>
 <meta name="description" content="AQA GCSE Chemistry: interactive lessons, required practicals, topic tests and full practice papers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -945,14 +948,12 @@ let restored=false;
 function restore(){ restored=true; document.querySelectorAll("section.lab .qi[data-q]").forEach(el=>{ const qid=el.dataset.q, k=qkey(qid); if(k&&CSAVED[k]) STATE[qid]=CSAVED[k]; }); Object.keys(QZ).forEach(id=>{ if(document.getElementById(id)&&QZ[id].some((_,i)=>STATE[`${id}-${i}`])) score(id); }); }
 
 /* parse a typed number: accepts 1.2e3, 1.2×10^3, 1.2 x 10^-3, commas */
-function num(s){ if(s==null) return NaN; s=String(s).trim().replace(/,/g,"").replace(/−/g,"-").replace(/\s+/g,"");
-  let m=s.match(/^([-+]?\d*\.?\d+)(?:[x×*]10\^?([-+]?\d+))$/i); if(m) return +m[1]*Math.pow(10,+m[2]);
-  return s===""?NaN:Number(s); }
+function num(s){ return NumericTools.parseNumber(s); }
 function grade(qid){ const [id,i]=qid.split(/-(?=\d+$)/), q=QZ[id][+i], fb=$(`#${qid}-fb`); let ok=false, ans;
   if(q.opts){ const sel=$(`input[name="${qid}"]:checked`); if(!sel){ fb.hidden=false; fb.className="qfb nok"; fb.innerHTML="Choose an answer first."; return; } ans=+sel.value; ok=ans===q.a;
     $$(`[data-q="${qid}"] .qo label`).forEach((l,j)=>{ l.classList.toggle("right",ok&&j===q.a); l.classList.toggle("wrong",!ok&&j===ans); }); }
-  else { const v=num($(`#${qid}-in`).value); if(isNaN(v)){ fb.hidden=false; fb.className="qfb nok"; fb.innerHTML="Type a number (you can write 3.2e-3 for 3.2 × 10⁻³)."; return; }
-    const tol=q.tol??0.02; ok=Math.abs(v-q.a)<=Math.abs(q.a)*tol+(q.abs||0)+1e-12; }
+  else { const v=num($(`#${qid}-in`).value); if(isNaN(v)){ fb.hidden=false; fb.className="qfb nok"; fb.innerHTML="Enter a number or expression, such as 1/2, sqrt(2) or 3.2e-3."; return; }
+    const tol=q.tol??0.02; ok=NumericTools.matches(v,q.a,tol,q.abs||0); }
   fb.hidden=false; fb.className="qfb "+(ok?"ok":"nok"); fb.innerHTML=(ok?"<b>Correct.</b> ":"<b>Not quite.</b> ")+(ok?(q.why||""):(q.hint?q.hint+" ":"")+"Try again, or show the answer.");
   STATE[qid]=ok||STATE[qid]==="shown"?(ok?"ok":"shown"):"no"; persist(qid); score(id); }
 function reveal(qid){ const [id,i]=qid.split(/-(?=\d+$)/), q=QZ[id][+i], fb=$(`#${qid}-fb`);
@@ -1071,7 +1072,7 @@ Object.entries({
 window.EXAM=(()=>{
 const {$,$$,store}=LAB, {num}=LEARN;
 const KEY="learn-motion-exam", saved=store.get(KEY)||{};
-let st; const save=()=>{ clearTimeout(st); st=setTimeout(()=>store.set(KEY,saved),250); };
+const save=()=>store.set(KEY,saved);
 const CARDS={}, PARTS={};
 const kind=`<span class="kind k-exam">Exam</span>`;
 const L="abcdefghij";
@@ -1093,7 +1094,7 @@ function partHTML(p,qi){ const s=saved[p.id]||{};
   let body="";
   if(p.opts){ body=`<div class="xmcq">${p.opts.map((o,j)=>`<label class="${s.done?(j===p.a?"right":(j===s.c?"wrong":"")):""}"><input type="radio" name="${p.id}" value="${j}" ${s.c===j?"checked":""}><span><b>${"ABCD"[j]}</b> ${o}</span></label>`).join("")}</div><div class="xbtns"><button class="btn primary" data-xmcq="${p.id}">Check</button></div>`; }
   else { body=`<textarea class="xans" data-xw="${p.id}" rows="${p.lines||3}" aria-label="Your answer to part ${p.l}" placeholder="Write your answer and working here">${(s.w||"").replace(/</g,"&lt;")}</textarea>`;
-    if(p.ans) body+=`<div class="xfinal"><span>Final answer</span><input type="text" inputmode="decimal" data-xin="${p.id}" value="${s.f??""}" aria-label="Final answer" autocomplete="off"><span class="u">${p.ans.unit||""}</span><button class="btn" data-xchk="${p.id}">Check answer</button></div>`;
+    if(p.ans) body+=`<div class="xfinal"><span>Final answer</span><input type="text" inputmode="decimal" data-xin="${p.id}" value="${String(s.f??"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}" aria-label="Final answer" autocomplete="off"><span class="u">${p.ans.unit||""}</span><button class="btn" data-xchk="${p.id}">Check answer</button></div>`;
     body+=`<div class="xbtns"><button class="btn primary" data-xms="${p.id}">${s.done?(s.hid?"Show mark scheme":"Hide mark scheme"):"Mark it: show mark scheme"}</button></div>`; }
   let ms="";
   if(p.lor){ ms=`<div class="xmsh"><span>Levels of response mark scheme</span><span>Award: <select data-xlor="${p.id}">${Array.from({length:p.m+1},(_,i)=>`<option value="${i}" ${+s.v===i?"selected":""}>${i}</option>`).join("")}</select> / ${p.m}</span></div>${p.lor.map(([lv,d])=>`<div class="lv"><b>${lv}</b><span>${d}</span></div>`).join("")}${p.ind?`<div class="note"><b>Indicative scientific content</b><ul>${p.ind.map(x=>`<li>${x}</li>`).join("")}</ul></div>`:""}`; }
@@ -1126,14 +1127,17 @@ document.addEventListener("click",e=>{ const t=e.target.closest("[data-xms],[dat
   if(t.dataset.xmcq){ const sel=$(`input[name="${id}"]:checked`); const fb=$(`#${id}-fb`); if(!sel){ fb.hidden=false; fb.className="xfb nok"; fb.textContent="Choose an answer first."; return; } s.c=+sel.value; s.done=true; save(); rerender(p.card); return; }
   if(t.dataset.xms){ const ms=$(`#${id}-ms`); if(!s.done){ s.done=true; s.hid=false; if(!s.t) s.t=[]; } else s.hid=!s.hid; ms.hidden=!!s.hid; t.textContent=s.hid?"Show mark scheme":"Hide mark scheme"; save(); refresh(p.card); return; }
   if(t.dataset.xchk){ const raw=$(`[data-xin="${id}"]`).value, v=num(raw), fb=$(`#${id}-fb`); fb.hidden=false; s.f=raw;
-    if(isNaN(v)){ fb.className="xfb nok"; fb.textContent="Type a number (you can write 3.2e-3 for 3.2 × 10⁻³)."; save(); return; }
-    const a=p.ans, tol=a.tol??0.03, x=a.abs?Math.abs(v):v, ok=Math.abs(x-a.a)<=Math.abs(a.a)*tol+1e-12;
-    if(ok){ fb.className="xfb ok"; fb.innerHTML=`<b>Final answer correct.</b> In ${window.EXAM_BOARD||"OCR"} mark schemes a correct final answer normally earns full marks, so all ${p.m} are ticked. Check your working against the scheme anyway.`; s.done=true; s.hid=false; s.t=p.ms.map(()=>true); save(); const ms=$(`#${id}-ms`); ms.hidden=false; $$(`[data-xt="${id}"]`).forEach(c=>c.checked=true); $(`[data-xms="${id}"]`).textContent="Hide mark scheme"; refresh(p.card); }
+    if(isNaN(v)){ fb.className="xfb nok"; fb.textContent="Enter a number or expression, such as 1/2, sqrt(2) or 3.2e-3."; save(); return; }
+    const a=p.ans, tol=a.tol??0.03, x=a.abs?Math.abs(v):v, ok=NumericTools.matches(x,a.a,tol,a.atol??0);
+    if(ok){ const single=p.m===1&&p.ms.length===1;
+      fb.className="xfb ok"; fb.innerHTML=single?"<b>Final answer correct.</b> One mark awarded.":"<b>Final numerical value correct.</b> Open the mark scheme and tick the marks earned for working, accuracy and any explanation. A matching number alone does not establish all the required method marks.";
+      s.done=true; s.hid=false; s.t=s.t||[]; if(single) s.t=[true]; save();
+      const ms=$(`#${id}-ms`); ms.hidden=false; $$(`[data-xt="${id}"]`).forEach((c,j)=>c.checked=!!s.t[j]); $(`[data-xms="${id}"]`).textContent="Hide mark scheme"; refresh(p.card); }
     else { fb.className="xfb nok"; fb.innerHTML=`<b>That doesn't match.</b> ${a.hint||"Check your working, units and significant figures."} You can still pick up method marks: open the mark scheme to see which you earned.`; save(); } } });
 document.addEventListener("change",e=>{ const t=e.target;
   if(t.dataset.xt){ const id=t.dataset.xt, s=saved[id]=saved[id]||{}; s.t=s.t||[]; s.t[+t.dataset.j]=t.checked; save(); refresh(PARTS[id].card); }
   else if(t.dataset.xlor){ const id=t.dataset.xlor, s=saved[id]=saved[id]||{}; s.v=+t.value; s.done=true; save(); refresh(PARTS[id].card); } });
-document.addEventListener("input",e=>{ const t=e.target; if(t.dataset.xw){ const s=saved[t.dataset.xw]=saved[t.dataset.xw]||{}; s.w=t.value; save(); } });
+document.addEventListener("input",e=>{ const t=e.target, id=t.dataset.xw||t.dataset.xin; if(id){ const s=saved[id]=saved[id]||{}; if(t.dataset.xin) s.f=t.value; else s.w=t.value; save(); } });
 
 return {graph,attach,build,refresh,allParts,pscore,PARTS,CARDS};
 })();
@@ -3324,7 +3328,7 @@ const A={hcl:["Hydrochloric acid","strong",null,"HCl"],no3:["Nitric acid","stron
 const calc=(k,c)=>{ const a=A[k]; if(a[1]==="strong") return {H:c,al:1}; const Ka=a[2], H=(-Ka+Math.sqrt(Ka*Ka+4*Ka*c))/2; return {H,al:H/c}; };
 const stage=`<div class="two" style="padding:12px;align-items:center"><div id="cc7-box"></div><div id="cc7-ph"></div></div>`;
 const panel=field("Acid",seg("cc7-a",[["hcl","Hydrochloric"],["no3","Nitric"],["eth","Ethanoic"],["cit","Citric"],["car","Carbonic"]],2,"hcl"))+sl("cc7-c","Concentration (log scale)",-3,0,1,-1,"Concentration")+CH.ro([["cc7-cc","Concentration"],["cc7-al","Molecules ionised"],["cc7-h","H⁺ concentration"],["cc7-p","pH"]]);
-lesson({id:"cc7",group:"b",num:7,lvl:"4.4.2 · Lesson 7",name:"Strong and weak acids",icon:"weak",
+lesson({id:"cc7",group:"b",num:7,lvl:"4.4.2 · Lesson 7",name:"Strong and weak acids",icon:"weak",tag:"Higher tier",
  eyebrow:eb("4.4.2.6 Strong and weak acids",7),title:"Strong and weak acids",
  intro:"'Strong' and 'concentrated' mean different things. Strength is about how completely the acid ionises in water; concentration is about how much acid is dissolved in each cubic decimetre.",
  outcomes:[["Explain the difference between strong and weak acids in terms of ionisation","4.4.2.6"],["Distinguish between dilute and concentrated, and between weak and strong","4.4.2.6"],["<span class=\"ht\">Higher</span> Explain that a decrease of 1 pH unit means a ten-fold increase in hydrogen ion concentration","4.4.2.6"]],
@@ -4873,7 +4877,7 @@ lesson({id:"am1",group:"a",num:1,lvl:"4.9.1 · Lesson 1",name:"The Earth's atmos
   B.sim("am1-sim","4.6 billion years of air",stage,panel,`<span>Drag back in time</span>`),
   B.text("How it changed",`<ul><li>The early atmosphere was probably like the atmospheres of Mars and Venus today: mainly <b>carbon dioxide</b> with little or no oxygen, released by volcanoes. Nitrogen may also have been released, and water vapour condensed to form the <b>oceans</b>.</li><li>When the oceans formed, carbon dioxide <b>dissolved</b> in the water and <b>carbonates were precipitated</b>, producing sediments, reducing the amount of carbon dioxide.</li><li><b>Algae and plants</b> produced the oxygen that is now in the atmosphere by <b>photosynthesis</b>. Algae first produced oxygen about 2.7 billion years ago; over the next billion years plants evolved and the oxygen increased to a level that enabled animals to evolve.</li><li>Carbon dioxide was also removed as it was used by algae and plants and locked up in <b>sedimentary rocks</b> such as limestone, and in <b>fossil fuels</b> (coal, crude oil and natural gas) formed from the remains of living things.</li></ul>`),
   B.check([
-   {q:"What is the approximate percentage of nitrogen in today's atmosphere?",a:80,unit:"%",tol:2,why:"About four-fifths (78%)."},
+   {q:"What is the approximate percentage of nitrogen in today's atmosphere?",a:79,show:"78–80",unit:"%",tol:0,abs:1,why:"About 78–80%, or four-fifths."},
    {q:"Which gas made up most of the Earth's early atmosphere?",opts:["Oxygen","Nitrogen","Carbon dioxide","Argon"],a:2,why:"Released by volcanic activity."},
    {q:"How were the oceans formed?",opts:["Water vapour condensed as the Earth cooled","Ice comets melted only","Photosynthesis","Rain from clouds of nitrogen"],a:0,why:"Volcanic water vapour condensed."},
    {q:"Which process increased the amount of oxygen in the atmosphere?",opts:["Respiration","Combustion","Photosynthesis","Volcanic activity"],a:2,why:"Algae and plants release oxygen."},
@@ -5849,7 +5853,7 @@ const {$,$$,store}=LAB, {lesson,done,mark}=LEARN, {build,refresh,allParts,pscore
 const pad=n=>String(n).padStart(2,"0");
 const UT={atoms:"4.1 Atomic structure and the periodic table",bonding:"4.2 Bonding, structure and properties",quant:"4.3 Quantitative chemistry",changes:"4.4 Chemical changes",energy:"4.5 Energy changes",rates:"4.6 Rate and extent of chemical change",organic:"4.7 Organic chemistry",analysis:"4.8 Chemical analysis",atmos:"4.9 Chemistry of the atmosphere",resources:"4.10 Using resources"};
 const UORD=Object.keys(UT);
-/* Physics Equation Sheet (the equations given in the exam; all others must be recalled) */
+/* Periodic table provided for chemistry practice papers. */
 const EQS=[
  ["(final velocity)² − (initial velocity)² = 2 × acceleration × distance","v² − u² = 2 a s"],
  ["force = change in momentum ÷ time taken","F = mΔv ÷ Δt",1],
@@ -6070,7 +6074,7 @@ const qs=[
  {q:"<span class=\"ht\">Higher</span> Write the ionic equation for the reaction of X with sodium hydroxide.",m:1,lines:1,ms:[["1","Fe³⁺ + 3OH⁻ → Fe(OH)₃"]]},
  {tag:"an6",q:"Give one advantage of flame emission spectroscopy over flame tests.",m:1,lines:1,ms:[["1","more accurate / sensitive / rapid / identifies ions in mixtures / measures concentration"]]}]},
 {tag:"am1",stem:`<p>The Earth's atmosphere has changed over billions of years.</p>`,parts:[
- {q:"Give the approximate percentage of nitrogen in today's atmosphere.",m:1,ans:{a:80,unit:"%",tol:2.01},ms:[["1","about 80% (accept 78%)"]]},
+ {q:"Give the approximate percentage of nitrogen in today's atmosphere.",m:1,ans:{a:79,unit:"%",tol:0,atol:1},ms:[["1","about 80% (accept 78%)"]]},
  {q:"Explain how the amount of oxygen in the atmosphere increased.",m:2,lines:2,ms:[["1","algae and plants evolved"],["1","photosynthesis produced oxygen"]]},
  {tag:"am2",q:"Explain how greenhouse gases keep the Earth warm.",m:3,lines:4,ms:[["1","short wavelength radiation from the Sun passes through the atmosphere"],["1","the Earth emits long wavelength (infrared) radiation"],["1","greenhouse gases absorb (and re-emit) this radiation"]]},
  {tag:"am2",q:"The concentration of carbon dioxide rose from 280 ppm to 420 ppm. Calculate the percentage increase.",m:2,ans:{a:50,unit:"%",tol:0.0001},ms:[["1","(420 − 280) ÷ 280 × 100"],["1","= 50%"]]},
@@ -6547,8 +6551,8 @@ const qs=[
  {tag:"an5",q:"Which solution is used to test for sulfate ions?",m:1,lines:1,ms:[["1","barium chloride (with dilute hydrochloric acid)"]]},
  {tag:"an6",q:"Give one advantage of instrumental methods.",m:1,lines:1,ms:[["1","accurate / sensitive / rapid"]]}]},
 {tag:"am1",stem:`<p>The atmosphere today is mostly nitrogen and oxygen.</p>`,parts:[
- {q:"Give the approximate percentage of nitrogen in the atmosphere.",m:1,ans:{a:78,unit:"%",tol:2.01},ms:[["1","about 78–80%"]]},
- {q:"Give the approximate percentage of oxygen in the atmosphere.",m:1,ans:{a:21,unit:"%",tol:1.01},ms:[["1","about 20–21%"]]},
+ {q:"Give the approximate percentage of nitrogen in the atmosphere.",m:1,ans:{a:79,unit:"%",tol:0,atol:1},ms:[["1","about 78–80%"]]},
+ {q:"Give the approximate percentage of oxygen in the atmosphere.",m:1,ans:{a:20.5,unit:"%",tol:0,atol:0.5},ms:[["1","about 20–21%"]]},
  {q:"Where did most of the gases in the early atmosphere come from?",m:1,lines:1,ms:[["1","volcanoes"]]},
  {q:"Explain how the amount of oxygen in the atmosphere increased.",m:2,lines:2,ms:[["1","algae and plants"],["1","produced oxygen by photosynthesis"]]},
  {tag:"am2",q:"Name two greenhouse gases.",m:2,lines:1,ms:[["1","carbon dioxide / methane / water vapour"],["1","a second from the list"]]},
@@ -6635,7 +6639,7 @@ const qs=[
  {q:"Name the two products when an acid reacts with an alkali.",m:2,lines:1,ms:[["1","a salt"],["1","water"]]},
  {tag:"cc4",q:"Name the salt made from potassium hydroxide and nitric acid.",m:1,lines:1,ms:[["1","potassium nitrate"]]},
  {tag:"cc4",q:"Name the gas made when an acid reacts with a carbonate, and give its test.",m:2,lines:2,ms:[["1","carbon dioxide"],["1","turns limewater milky"]]},
- {tag:"cc7",q:"What is the difference between a strong acid and a weak acid?",m:2,lines:2,ms:[["1","strong acids are completely ionised in water"],["1","weak acids are only partially ionised"]]},
+ {"q":"Explain the difference between an acid and an alkali in terms of the ions they produce in water.","m":2,"ms":[["1","acids produce H⁺ / hydrogen ions"],["1","alkalis produce OH⁻ / hydroxide ions"]],"tag":"cc6"},
  {q:"Why is an indicator used in a titration?",m:1,lines:1,ms:[["1","to show the end point (when neutralisation is complete) by changing colour"]]}]},
 {tag:"cc9",stem:`<p>A student electrolysed copper(II) chloride solution using carbon electrodes.</p>`,parts:[
  {tag:"cc8",q:"What is an electrolyte?",m:1,lines:1,ms:[["1","a liquid or solution containing ions that conducts electricity (and is broken down)"]]},
@@ -6915,7 +6919,7 @@ const qs=[
  {tag:"an5",q:"What is seen when barium chloride is added to an acidified solution of sulfate ions?",m:1,lines:1,ms:[["1","white precipitate"]]},
  {tag:"an6",q:"Why is flame emission spectroscopy useful for mixtures of metal ions?",m:1,lines:1,ms:[["1","each ion gives its own lines, so they can all be identified (colours do not mask each other)"]]}]},
 {tag:"am1",stem:`<p>This question is about the Earth's atmosphere.</p>`,parts:[
- {q:"About what percentage of today's atmosphere is oxygen?",m:1,ans:{a:20,unit:"%",tol:1.01},ms:[["1","about 20%"]]},
+ {q:"About what percentage of today's atmosphere is oxygen?",m:1,ans:{a:20.5,unit:"%",tol:0,atol:0.5},ms:[["1","about 20%"]]},
  {q:"Which living things first produced oxygen?",m:1,lines:1,ms:[["1","algae"]]},
  {q:"Write the word equation for photosynthesis.",m:2,lines:1,ms:[["1","carbon dioxide + water"],["1","→ glucose + oxygen"]]},
  {tag:"am2",q:"Explain how greenhouse gases keep the Earth warm.",m:2,lines:2,ms:[["1","they absorb the long wavelength (infrared) radiation given off by the Earth"],["1","keeping the energy in the atmosphere"]]},
