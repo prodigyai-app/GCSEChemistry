@@ -3,6 +3,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="numeric-tools.js"></script>
+<script>window.ALP_SITE="gcse-chemistry";</script>
+<script src="lab-notebook.js"></script>
 <title>GCSE Chemistry</title>
 <meta name="description" content="AQA GCSE Chemistry: interactive lessons, required practicals, topic tests and full practice papers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -804,6 +806,7 @@ ${cfg.mid||""}
 ${cfg.work!==false?`<div class="card"><div class="card-h"><h3>${cfg.workTitle||"Worked calculation"}</h3><span class="muted" style="font-size:.85rem">${cfg.workSub||"Uses your own readings"}</span></div><div id="${cfg.id}-work"><p class="empty">${cfg.workEmpty||"Take some readings and the calculation will appear here."}</p></div></div>`:""}
 ${info(cfg.info)}`;
   $(".wrap").appendChild(s);
+  LabNotebook.attach(cfg,s);
   return s;
 }
 
@@ -5454,6 +5457,7 @@ return {beaker,flask,tube,bunsen,tripod,basin,burette};
 const {$,C,W,fx,gauss,bars,rows,build,register}=LAB;
 const MR=249.5, NA=0.025, NEED=5;
 const st={step:0,n:0,warm:false,dry:false,data:[]};
+LabNotebook.observe("salt",st);
 const stage=`<svg id="salt-svg" viewBox="0 0 900 470" role="img" aria-label="Making copper(II) sulfate crystals">${C.room()}<g id="salt-g"></g></svg>`;
 const panel=`<div class="btnrow" style="flex-wrap:wrap"><button class="btn" id="salt-warm">Warm the acid</button><button class="btn" id="salt-add">Add a spatula of CuO</button><button class="btn" id="salt-fil">Filter</button><button class="btn" id="salt-ev">Heat to evaporate</button><button class="btn" id="salt-cr">Leave to crystallise</button><button class="btn primary" id="salt-wt">Dry and weigh crystals</button><button class="btn" id="salt-new">Start a new attempt</button></div>
 <div class="readout"><div><span>Stage</span><b id="salt-s">—</b></div><div><span>CuO added</span><b id="salt-n">0</b></div></div><p class="note" id="salt-h"></p>`;
@@ -5497,6 +5501,7 @@ register({id:"salt",group:"gcse",num:1,name:"Making salts",icon:"rp-salt",onShow
 (()=>{
 const {$,C,W,fx,gauss,bars,rows,build,register}=LAB;
 const st={c:+(0.08+Math.random()*0.04).toFixed(3),r0:0,r:0,fill:false,added:0,data:[]};
+LabNotebook.observe("titr",st);
 const VE=()=>2.5/st.c;
 const stage=`<svg id="titr-svg" viewBox="0 0 900 470" role="img" aria-label="Burette above a conical flask">${C.room()}${C.stand(300,420,30)}${C.clamp(300,110,440,20)}<g id="titr-g"></g><g id="titr-mag"></g></svg>`;
 const panel=`<div class="btnrow" style="flex-wrap:wrap"><button class="btn" id="titr-fill">Fill the burette</button><button class="btn" id="titr-1">Run in 1.00 cm³</button><button class="btn" id="titr-01">Add 0.10 cm³</button><button class="btn" id="titr-d">Add one drop (0.05)</button></div>
@@ -5540,6 +5545,7 @@ const S=[{n:"copper(II) chloride",liq:"#5fb3a8",cat:["copper","solid",0,"pink-br
  {n:"potassium bromide",liq:"#9cc8e8",cat:["hydrogen","gas",1,"squeaky pop"],an:["bromine","sol",0,"orange-brown colour around the anode"],why:"Potassium is more reactive than hydrogen; bromide is a halide (bromine dissolves)."},
  {n:"sodium sulfate",liq:"#9cc8e8",cat:["hydrogen","gas",1,"squeaky pop"],an:["oxygen","gas",0.5,"relights a glowing splint"],why:"Sodium is more reactive than hydrogen; no halide, so oxygen."}];
 const st={k:0,on:false,t:0,last:0,data:[],trace:[]};
+LabNotebook.observe("elec",st);
 const stage=`<svg id="elec-svg" viewBox="0 0 900 470" role="img" aria-label="Electrolysis cell with gas collecting tubes">${C.room()}${C.psu(640,250,"elec-psu",{max:12})}<g id="elec-g"></g>${C.stopwatch(40,180,"elec-sw")}</svg>`;
 const panel=`<div class="field"><div class="lbl">Solution</div><select id="elec-s">${S.map((s,i)=>`<option value="${i}">${s.n}</option>`).join("")}</select></div>
 <div class="btnrow"><button class="btn primary" id="elec-on">Switch on</button><button class="btn" id="elec-reset">Empty and refill</button></div>
@@ -5586,6 +5592,7 @@ register({id:"elec",group:"gcse",num:3,name:"Electrolysis",icon:"rp-elec",onShow
 (()=>{
 const {$,C,W,fx,gauss,plot,rows,build,register,linfit,RUNCOL}=LAB;
 const st={c:+(1.4+Math.random()*0.5).toFixed(2),V:0,T0:+(19+Math.random()*3).toFixed(1),data:[],shown:0};
+LabNotebook.observe("temp",st);
 const Tof=V=>{ const na=0.025*st.c, nb=0.002*V, n=Math.min(na,nb); return st.T0+n*57100/(4.18*(25+V))*0.93; };
 const stage=`<svg id="temp-svg" viewBox="0 0 900 470" role="img" aria-label="Polystyrene cup with thermometer">${C.room()}${C.thermo(450,40,300,"temp-th",{tMin:0,tMax:50})}<g id="temp-g"></g>${C.mag(720,170,90,"temp-mag")}</svg>`;
 const panel=`<div class="readout"><div><span>Total NaOH added</span><b id="temp-v">0 cm³</b></div><div><span>Thermometer</span><b id="temp-t">—</b></div></div>
@@ -5623,6 +5630,7 @@ register({id:"temp",group:"gcse",num:4,name:"Temperature changes",icon:"rp-temp"
 const {$,C,W,fx,gauss,plot,rows,build,register,RUNCOL}=LAB;
 const VF=96;
 const st={c:1.0,run:false,t:0,pts:[],runs:[]};
+LabNotebook.observe("rate",st);
 const k=c=>0.04*c;
 const stage=`<svg id="rate-svg" viewBox="0 0 900 470" role="img" aria-label="Conical flask connected to a gas syringe">${C.room()}<g id="rate-g"></g>${C.stopwatch(60,190,"rate-sw")}</svg>`;
 const panel=`<div class="field"><div class="lbl">Concentration of hydrochloric acid</div><div class="seg c2" id="rate-c">${[0.5,1.0,1.5,2.0].map(v=>`<label class="opt"><input type="radio" name="rate-c" value="${v}" ${v===1?"checked":""}><span>${v.toFixed(1)} mol/dm³</span></label>`).join("")}</div></div>
@@ -5664,6 +5672,7 @@ const {$,C,W,fx,gauss,bars,rows,build,register}=LAB;
 const DY={E:[["yellow",.78,"#e3b81f"]],R:[["red",.52,"#d63a8a"]],B:[["blue",.30,"#3a7bd6"]],G:[["yellow",.78,"#e3b81f"],["blue",.30,"#3a7bd6"]],S:[["red",.52,"#d63a8a"],["blue",.30,"#3a7bd6"],["orange",.64,"#ef7d22"]]};
 const LN=[["E","Yellow"],["R","Red"],["B","Blue"],["G","Green"],["S","Sweet coating"]];
 const st={p:0,run:false,data:[]};
+LabNotebook.observe("chrom",st);
 const F=230, Y0=380, X0=300;
 const stage=`<svg id="chrom-svg" viewBox="0 0 900 470" role="img" aria-label="Chromatography paper in a beaker of water">${C.room()}<g id="chrom-g"></g></svg>`;
 const panel=`<div class="btnrow"><button class="btn primary" id="chrom-go">Place paper in the solvent</button><button class="btn" id="chrom-re">New paper</button></div><div class="readout"><div><span>Solvent front</span><b id="chrom-sf">—</b></div><div><span>Status</span><b id="chrom-s">Ready</b></div></div><p class="note">When the solvent is near the top, the run stops. Click any spot to measure it with the ruler and record its R<sub>f</sub> value.</p>`;
@@ -5705,6 +5714,7 @@ const OH={Na:["no precipitate",null],K:["no precipitate",null],Ca:["white precip
 const AN={CO3:{acid:["fizzes; limewater turns milky",null],ag:["fizzes when acid is added; no precipitate",null],ba:["fizzes; no precipitate",null]},SO4:{acid:["no fizzing",null],ag:["no precipitate",null],ba:["white precipitate","#f4f4f4"]},Cl:{acid:["no fizzing",null],ag:["white precipitate","#f4f4f4"],ba:["no precipitate",null]},Br:{acid:["no fizzing",null],ag:["cream precipitate","#efe2b8"],ba:["no precipitate",null]},I:{acid:["no fizzing",null],ag:["yellow precipitate","#f2d43a"],ba:["no precipitate",null]}};
 const T=[["flame","Flame test"],["oh","Add sodium hydroxide solution"],["acid","Add dilute acid; test gas with limewater"],["ag","Add dilute nitric acid, then silver nitrate"],["ba","Add dilute hydrochloric acid, then barium chloride"]];
 const st={data:[],last:null,id:{}};
+LabNotebook.observe("ions",st);
 const stage=`<svg id="ions-svg" viewBox="0 0 900 470" role="img" aria-label="Test for ions">${C.room()}<g id="ions-g"></g></svg>`;
 const panel=`<div class="field"><div class="lbl">Unknown solid</div><select id="ions-u">${Object.keys(U).map(k=>`<option value="${k}">Sample ${k}</option>`).join("")}</select></div><div class="field"><div class="lbl">Test</div><select id="ions-t">${T.map(t=>`<option value="${t[0]}">${t[1]}</option>`).join("")}</select></div><div class="btnrow"><button class="btn primary" id="ions-go">Carry out the test</button></div>
 <div class="field"><div class="lbl">Identify the sample</div><select id="ions-guess"><option value="">Choose…</option>${Object.values(U).map(u=>`<option value="${u[0]}">${u[1]}</option>`).join("")}</select></div><div class="btnrow"><button class="btn" id="ions-chk">Check my identification</button></div><p class="note" id="ions-h"></p>`;
@@ -5739,6 +5749,7 @@ register({id:"ions",group:"gcse",num:7,name:"Identifying ions",tag:"Chemistry on
 const {$,C,W,fx,gauss,bars,rows,build,register}=LAB;
 const SM={tap:["Tap water",7.2,0.30],rain:["Rain water",5.6,0.03],river:["River water",7.6,0.60],sea:["Sea water",8.1,35.0],dist:["Distilled sea water",7.0,0.0]};
 const st={k:"sea",basin:+(48+Math.random()*6).toFixed(2),stage:0,data:{},ph:null,mass:null};
+LabNotebook.observe("water",st);
 const stage=`<svg id="water-svg" viewBox="0 0 900 470" role="img" aria-label="Analysing a water sample">${C.room()}${C.balance(620,300,"water-bal")}<g id="water-g"></g></svg>`;
 const panel=`<div class="field"><div class="lbl">Sample</div><select id="water-s">${Object.entries(SM).map(([k,v])=>`<option value="${k}" ${k==="sea"?"selected":""}>${v[0]}</option>`).join("")}</select></div>
 <div class="btnrow" style="flex-wrap:wrap"><button class="btn" id="water-ph">Measure pH</button><button class="btn" id="water-w0">Weigh empty basin</button><button class="btn" id="water-ev">Evaporate 50.0 cm³ to dryness</button><button class="btn" id="water-w1">Weigh basin again</button><button class="btn" id="water-dis">Distil the sea water</button></div>
@@ -7367,6 +7378,7 @@ function stats(d){ d=d||{}; const done=new Set((d["learn-motion-done"]||[]).filt
   Object.entries(cs).forEach(([k,v])=>{ const lid=k.split(":")[0]; const u=unitOf(lid); if(v==="ok"){ R.cok++; if(u) R.unit[u.key].cok++; } });
   Object.values(EXAM.PARTS).forEach(p=>{ const v=partScore(p,ex[p.id]); if(v==null) return; const lid=partLesson[p.id], u=unitOf(lid);
     if(PIDS.has(lid)){ const pp=R.paper[lid]=R.paper[lid]||{g:0,m:0}; pp.g+=v; pp.m+=p.m; } else { R.em+=v; R.emk+=p.m; if(u){ R.unit[u.key].em+=v; R.unit[u.key].emk+=p.m; } } });
+  R.labs=LabNotebook.summary(d);
   return R; }
 const pc=(a,b)=>b?Math.round(a/b*100):null;
 const pcell=(a,b)=>{ const p=pc(a,b); return p==null?`<span class="muted">–</span>`:`<span class="td-pc ${p<50?"lo":p<70?"mid":"hi"}">${p} %</span>`; };
@@ -7390,8 +7402,10 @@ function renderDash(){ const c=classes.find(x=>x.id===cur);
 function detail(id){ sel=id; const s=students.find(x=>x.id===id), p=prog[id]||{st:stats({})}, S=p.st;
   const ur=units.map(u=>{ const x=S.unit[u.key]; return `<tr><td>${esc(x.title)}</td><td class="num">${x.done} / ${x.n}</td><td class="num">${pcell(x.cok,x.cq)}</td><td class="num">${pcell(x.em,x.emk)}</td></tr>`; }).join("");
   const pr=PAPERS.map(x=>{ const q=S.paper[x.id]; return `<tr><td>${esc(x.set?x.set+" · ":"")}${esc(x.name)}</td><td class="num">${q?`${q.g} / ${q.m}`:"–"}</td><td class="num">${q?pcell(q.g,q.m):"<span class=\"muted\">not started</span>"}</td></tr>`; }).join("");
+  const labrows=LAB.list.filter(p=>!p.unit&&!p.group?.startsWith("papers:")).map(p=>{const q=S.labs.reviews.find(r=>r.id===p.id);return `<tr><td>${esc(p.name)}</td><td>${q?.complete?"Complete":q?"Started":"Not started"}</td><td>${q?.score==null?"–":q.score+" / 2"}</td><td>${esc(q?.reflection||"")}</td></tr>`;}).join("");
   const opts=classes.filter(c=>c.id!==cur).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
   $("#td-d").innerHTML=`<div class="lcard"><h3>${esc(s.display_name||s.username)} <span class="muted" style="font-weight:400;font-size:.95rem">${esc(s.username)} · ${S.days} day${S.days===1?"":"s"} active · ${hm(S.time)}</span></h3>
+   <h4>Practical reviews · ${S.labs.complete} complete</h4><div class="tbl-wrap"><table class="tbl-mini"><thead><tr><th>Practical</th><th>Review</th><th>Skills check</th><th>Conclusion and evaluation (student written)</th></tr></thead><tbody>${labrows}</tbody></table></div>
    <div class="td-two"><div class="tbl-wrap"><table class="tbl-mini"><tr><th>Unit</th><th>Lessons</th><th>Checks</th><th>Exam Qs</th></tr>${ur}</table></div><div class="tbl-wrap"><table class="tbl-mini"><tr><th>Full paper</th><th>Marks</th><th>Score</th></tr>${pr}</table></div></div>
    <div class="td-actions" style="margin-top:14px"><button class="btn" id="td-pw">Reset password</button>${opts?`<select id="td-mv" aria-label="Move to class"><option value="">Move to class…</option>${opts}</select>`:""}<button class="btn" id="td-out">Remove from class</button><button class="btn" id="td-rm">Delete account</button></div></div>`;
   $("#td-d").scrollIntoView({behavior:"smooth",block:"nearest"}); }
