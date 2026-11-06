@@ -7,6 +7,7 @@
 <script src="numeric-tools.js?v=20261022-keyboard"></script>
 <script>window.ALP_SITE="gcse-chemistry";</script>
 <script src="lab-notebook.js"></script>
+<script src="gcse-skills.js?v=20261106-skills"></script>
 <title>GCSE Chemistry</title>
 <meta name="description" content="AQA GCSE Chemistry: interactive lessons, required practicals, topic tests and full practice papers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -7012,6 +7013,7 @@ const U0=[
   [["a","4.9.1 The composition and evolution of the atmosphere"],["b","4.9.2–4.9.3 Greenhouse gases and atmospheric pollutants"],["r","Review and exam practice"]]),
  mk("resources",10,"Using resources","Water, recycling, materials and fertilisers","Sustainable development; potable water and waste water; alternative methods of extracting metals; life cycle assessment and recycling; corrosion; alloys, ceramics, polymers and composites; the Haber process and NPK fertilisers.",
   [["a","4.10.1 Using the Earth's resources and obtaining potable water"],["b","4.10.2 Life cycle assessment and recycling"],["c","4.10.3–4.10.4 Using materials and the Haber process"],["r","Review and exam practice"]]),
+ ...(window.GCSESkills?[GCSESkills.build("chemistry")].filter(Boolean):[]),
  {key:"papers",kind:"Full practice papers",title:"Exam papers",sub:"Complete AQA-style Paper 1 and Paper 2, Higher and Foundation",icon:"u-papers",noun:"papers",listLabel:"All exam papers",done,
   desc:"Full-length practice papers in the AQA 8462 format: 100 marks in 1 h 45 min each, with the Periodic Table, a timer, self-marking mark schemes, a grade guide and printable versions.",
   intro:"Each set has a Paper 1 (topics 4.1–4.5) and a Paper 2 (topics 4.6–4.10), in Higher tier and Foundation tier. A paper is ticked off once every part is marked.",
@@ -7356,4 +7358,5 @@ window.ALP_ACCOUNTS={sb,merge,stats,get user(){ return user; },get profile(){ re
 <script src="diagram-fit.js?v=20261025-diagrams"></script>
 <link rel="stylesheet" href="gcse-tiers.css?v=20261031-tiers">
 <script src="gcse-tiers.js?v=20261031-fast"></script>
+<script src="gcse-practical-questions.js?v=20261106-rpq"></script>
 </body></html>
