@@ -170,7 +170,7 @@
   X('cc11', Q('This question is about copper and its compounds.', [
     P('Copper oxide reacts with sulfuric acid. Name the salt formed.', 1, ['copper sulfate']),
     P('Explain why copper cannot be produced by electrolysis of molten copper sulfate but can be from copper sulfate solution.', 1, ['copper sulfate decomposes before it melts (so use a solution) / copper is less reactive than hydrogen so it is deposited from solution']),
-    P('Copper sulfate solution is electrolysed using inert electrodes. Name the products at the cathode and the anode.', 2, ['cathode: copper', 'anode: oxygen']),
+    P('Predict what forms at the negative electrode and at the positive electrode when copper sulfate solution is electrolysed with inert electrodes.', 2, ['negative electrode: copper', 'positive electrode: oxygen']),
     P('Explain why the solution left after electrolysis is acidic.', 1, ['H⁺ ions (and sulfate) remain / sulfuric acid forms']),
     P('Iron reacts with copper sulfate solution. Explain this reaction in terms of oxidation and reduction of electrons.', 3, ['iron atoms lose electrons / are oxidised', 'copper ions gain electrons / are reduced', 'iron is more reactive than copper so displaces it']),
     P('Suggest why copper is used for water pipes.', 1, ['does not react with water / unreactive (and malleable)'])

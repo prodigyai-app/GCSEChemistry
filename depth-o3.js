@@ -85,10 +85,10 @@
   E('qc6', 'Percentage yield', 'The theoretical yield of a salt is 12.5 g. A student obtains 9.8 g. Calculate the percentage yield.', [
     ['Divide', 'actual ÷ theoretical.', ['9.8 ÷ 12.5 = 0.784']],
     ['Percentage', 'Multiply by 100.', [`${res('78.4%')}`]]], { chk: [['9.8/12.5*100', 78.4]] });
-  X('qc6', Q('Ethanol can be made by two methods. Method 1: C₂H₄ + H₂O → C₂H₅OH. Method 2: C₆H₁₂O₆ → 2C₂H₅OH + 2CO₂. (M<sub>r</sub>: C₂H₅OH 46, C₆H₁₂O₆ 180.)', [
-    P('Give the atom economy of method 1 and explain your answer.', 1, ['100% because there is only one product']),
-    P('Calculate the atom economy of method 2.', 2, ['2 × 46 = 92', '92 ÷ 180 × 100 = 51.1%'], C(51.1, '%', '2*46/180*100', 0.005)),
-    P('Suggest one reason why a company might still choose method 2.', 1, ['glucose / sugar is a renewable raw material (ethene comes from crude oil)'])
+  X('qc6', Q('Iron is made in a blast furnace: Fe₂O₃ + 3CO → 2Fe + 3CO₂. (M<sub>r</sub>: Fe₂O₃ 160, CO 28; A<sub>r</sub>: Fe 56.)', [
+    P('Calculate the atom economy for making iron by this reaction.', 2, ['total M<sub>r</sub> of reactants = 160 + 3 × 28 = 244; useful product = 2 × 56 = 112', '112 ÷ 244 × 100 = 45.9%'], C(45.9, '%', '2*56/(160+3*28)*100', 0.005)),
+    P('Explain why a high atom economy is important for sustainable development.', 1, ['less waste is produced / fewer raw materials are used']),
+    P('Suggest how the company could make the process more economical even though the atom economy is low.', 1, ['find a use for (sell) the carbon dioxide by-product / reuse the energy released'])
   ]));
 
   /* ---------- qc7 mol/dm³ and titrations (HT) ---------- */
