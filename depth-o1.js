@@ -55,7 +55,7 @@
   E('at3', 'Comparing sizes', 'An atom has a radius of 1 × 10⁻¹⁰ m. Its nucleus has a radius of 1 × 10⁻¹⁴ m. How many times larger is the atom?', [
     ['Divide the radii', 'Ratio = radius of atom ÷ radius of nucleus.', [`${fr('1 × 10⁻¹⁰', '1 × 10⁻¹⁴')} = ${res('10 000 times')}`]],
     ['Interpret', 'This is why most alpha particles passed through.', ['the nucleus is about 1/10 000 of the width of the atom']]], { chk: [['1e-10/1e-14', 10000]] });
-  X('at3', Q('In the alpha particle scattering experiment, alpha particles were fired at a thin sheet of gold foil.', [
+  X('at3', Q('Rutherford\u2019s team directed a narrow beam of alpha particles at a very thin sheet of gold.', [
     P('Describe and explain what happened to most of the alpha particles.', 2, ['they passed straight through (undeflected)', 'because the atom is mostly empty space']),
     P('Explain why the results showed that the plum pudding model was wrong.', 2, ['some alpha particles were deflected / bounced back', 'the plum pudding model predicted (almost) all would pass straight through, as the charge and mass were spread out']),
     P('Describe the contribution Bohr made to the model of the atom.', 2, ['electrons orbit the nucleus at specific distances / in shells / energy levels', 'his calculations agreed with experimental observations'])
